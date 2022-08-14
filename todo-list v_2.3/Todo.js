@@ -1,5 +1,8 @@
-class Todo {
+import UI from "./UI.js";
+
+class Todo extends UI {
   constructor(elem) {
+    super(elem)
     this.elem = elem;
     this.state = {
       id: "",
@@ -13,6 +16,7 @@ class Todo {
     this.handleDeleteTask = this.handleDeleteTask.bind(this);
     this.handleEditForm = this.handleEditForm.bind(this);
     this.handleEditTask = this.handleEditTask.bind(this);
+    this.render = this.render.bind(this);
   }
   handleInput(e) {
     let { name, value } = e.target;
@@ -72,61 +76,12 @@ class Todo {
     this.render();
     return this;
   }
+  render() {
+    let elements = [this.Header(), this.AddTaskForm(), this.TodoList()];
+    this.anchor(elements);
+    return this;
+  }
 }
-Todo.prototype.setState = function (state) {
-  this.state = state;
-  return this;
-};
-Todo.prototype.createElement = function (tag, props, ...children) {
-  if (typeof tag === "function") return tag(props, children);
-
-  const appendChild = (parent, child) => {
-    if (Array.isArray(child))
-      child.forEach((nestedChild) => appendChild(parent, nestedChild));
-    else
-      parent.appendChild(
-        child.nodeType ? child : document.createTextNode(child)
-      );
-  };
-
-  const element = document.createElement(tag);
-
-  Object.entries(props || {}).forEach(([name, value]) => {
-    if (name.startsWith("on") && name.toLowerCase() in window) {
-      element.addEventListener(name.toLowerCase().substring(2), value);
-    }
-    if (name === "submit") {
-      element.addEventListener("submit", value);
-    }
-    if (name === "input") {
-      element.addEventListener("input", value);
-    }
-    if (name === "required") {
-      element.required = value;
-    }
-    if (name === "click") {
-      element.addEventListener("click", value);
-    } else element.setAttribute(name, value.toString());
-  });
-
-  children.forEach((child) => {
-    appendChild(element, child);
-  });
-
-  return element;
-};
-Todo.prototype.render = function () {
-  this.elem.innerHTML = "";
-  let elements = [this.Header(), this.AddTaskForm(), this.TodoList()];
-  const App = this.createElement(
-    "div",
-    { id: "root" },
-    ...elements.map((el) => el)
-  );
-  this.elem.append(App);
-  elements = [];
-  return this;
-};
 Todo.prototype.Form = function (props) {
   let { form, inputs } = props;
   return this.createElement(
